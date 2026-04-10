@@ -1,6 +1,6 @@
 ﻿namespace ClinicaDocMais.Models
 {
-    public class Paciente
+    public class PacienteModel
     {
         public string? cpf { get; set; }
         public string? nome { get; set; }
@@ -10,7 +10,7 @@
         public string? prioridade { get; set; }
         public string? email { get; set; }
 
-        public Paciente (string? cpf, string? nome, string? dataNascimento, string? prioridade)
+        public PacienteModel (string? cpf, string? nome, string? dataNascimento, string? prioridade)
         {
             this.cpf = cpf;
             this.nome = nome;
