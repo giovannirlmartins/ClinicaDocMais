@@ -30,7 +30,7 @@ namespace ClinicaDocMais.Controllers
         public string editarMedico([FromBody] MedicoModel medicoEditado, string crm) 
         {
             MedicoService medico = new MedicoService();
-            medico.editarMedico(medicoEditado, crm);
+            medico.editarMedico(medicoEditado, crm);  
 
             if (medico == null)
             {
