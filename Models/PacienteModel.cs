@@ -1,8 +1,10 @@
-﻿namespace ClinicaDocMais.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ClinicaDocMais.Models
 {
     public class PacienteModel
     {
-        public string? cpf { get; set; }
+        [Key] public string? cpf { get; set; }
         public string? nome { get; set; }
         public string? telefone { get; set; }
         public DateOnly? dataNascimento { get; set; }
