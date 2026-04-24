@@ -1,4 +1,5 @@
-﻿using ClinicaDocMais.Models;
+﻿using ClinicaDocMais.Data;
+using ClinicaDocMais.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,9 +7,13 @@ namespace ClinicaDocMais.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class PacienteController : Controller
+    public class PacienteController : ControllerBase
     {
-        public static List<PacienteModel> listaPaciente = new List<PacienteModel>();
+        private readonly ClinicaContext _context; 
+        public PacienteController(ClinicaContext context)
+        {
+            _context = context;
+        }
 
         //cadastrarPaciente
         [HttpPost("cadastrarpaciente")]
@@ -16,67 +21,78 @@ namespace ClinicaDocMais.Controllers
         {
             try
             {
-                listaPaciente.Add(pacienteCadastrado);
-                return Created();
+                _context.Add(pacienteCadastrado);
+                await _context.SaveChangesAsync();
+                return Created(); // ou return Ok($"Paciente {pacienteCadastrado.nome} criado com sucesso");
             }
             catch (Exception ex)
             { 
-                return BadRequest("Erro Inesperado: "+ex.Message);
+                return BadRequest("Erro Inesperado: " + ex.Message);
             }
         }
        
+        //buscaPaciente
+        [HttpGet("buscaPaciente/{cpf}")]
+        public async Task<IActionResult> buscarPaciente(string cpf)
+        {
+            try
+            {
+                PacienteModel? pacienteEncontrado = await _context.Pacientes.FindAsync(cpf);
+                return Ok(pacienteEncontrado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            
+        }
+
+
         [HttpGet("listarpacientes")]
         public List<PacienteModel> listarPaciente()
         {
             return listaPaciente;
         }
 
-        [HttpGet("buscaPaciente/{id}")]
-        public PacienteModel? buscarPaciente(string id)
-        {
-            foreach (var paciente in listaPaciente)
-            {
-                if(paciente.cpf == id)
-                {
-                    return paciente;
-                }
-            }
 
-            return null;
+        [HttpPut("editarPaciente/{cpf}")]
+        public async Task<IActionResult> editarPaciente([FromBody] PacienteModel pacienteEditado, string cpf) 
+        {
+            try
+            {
+                _context.Pacientes.Update(pacienteEditado);
+                await _context.SaveChangesAsync();
+                return Ok(pacienteEditado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
-        [HttpPut("editarPaciente/{id}")]
-        public string editarPaciente([FromBody] PacienteModel pacienteEditado, string id) 
+        [HttpDelete("deletarPaciente/{cpf}")]
+        public async Task<IActionResult> deletarPaciente(string cpf)
         {
-            foreach (var paciente in listaPaciente)
+            try
             {
-                if (paciente.cpf==id)
+                //se o paciente existir no meu banco de dados, eu deleto, caso contrario eu retorno um erro 
+                PacienteModel? pacienteEncontrado = await _context.Pacientes.FindAsync(cpf);
+
+                if (pacienteEncontrado != null)
                 {
-                    paciente.cpf = pacienteEditado.cpf;
-                    paciente.nome = pacienteEditado.nome;
-                    paciente.telefone = pacienteEditado.telefone;
-                    paciente.email = pacienteEditado.email;
-                    paciente.dataNascimento = pacienteEditado.dataNascimento;
-                    paciente.endereco = pacienteEditado.endereco;
-                    return $"Paciente {paciente.nome}, cpf anterior: {id} editado com sucesso";
+                    _context.Pacientes.Remove(pacienteEncontrado);
+                    await _context.SaveChangesAsync();
+                    return NoContent();
+                }
+                else
+                {
+                    throw new Exception($"Paciente de CPF: {cpf} não existe");
                 }
             }
-
-            return "Paciente não encontrado.";
-        }
-
-        [HttpDelete("deletarPaciente/{id}")]
-        public string deletarPaciente(string id)
-        {
-            foreach (var paciente in listaPaciente)
+            catch (Exception ex)
             {
-                if (paciente.cpf==id)
-                {
-                    listaPaciente.Remove(paciente);
-                    return $"Paciente com cpf: {id} deletado com sucesso";
-                }
+                return BadRequest("Erro. " + ex.Message);
             }
-            return "Paciente não encontrado";
         }
     }
 }
