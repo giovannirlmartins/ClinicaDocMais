@@ -5,7 +5,7 @@
 namespace ClinicaDocMais.Migrations
 {
     /// <inheritdoc />
-    public partial class CriacaoDataBase : Migration
+    public partial class AgendamentoCorreção : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

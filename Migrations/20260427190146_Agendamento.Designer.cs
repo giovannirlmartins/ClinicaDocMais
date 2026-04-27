@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ClinicaDocMais.Migrations
 {
     [DbContext(typeof(ClinicaContext))]
-    [Migration("20260422185545_CriacaoBanco")]
-    partial class CriacaoBanco
+    [Migration("20260427190146_Agendamento")]
+    partial class Agendamento
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -36,25 +36,23 @@ namespace ClinicaDocMais.Migrations
                     b.Property<DateTime>("dataHoraAgendamento")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("especialidadeMedico")
-                        .HasColumnType("longtext");
-
                     b.Property<bool>("medicoPresente")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<string>("nomeMedico")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("nomePaciente")
-                        .HasColumnType("longtext");
+                    b.Property<string>("medicocrm")
+                        .HasColumnType("varchar(255)");
 
                     b.Property<bool>("pacientePresente")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<string>("telefonePaciente")
-                        .HasColumnType("longtext");
+                    b.Property<string>("pacientecpf")
+                        .HasColumnType("varchar(255)");
 
                     b.HasKey("id");
+
+                    b.HasIndex("medicocrm");
+
+                    b.HasIndex("pacientecpf");
 
                     b.ToTable("Agendamentos");
                 });
@@ -120,6 +118,21 @@ namespace ClinicaDocMais.Migrations
                     b.HasKey("cpf");
 
                     b.ToTable("Pacientes");
+                });
+
+            modelBuilder.Entity("ClinicaDocMais.Models.AgendamentoModel", b =>
+                {
+                    b.HasOne("ClinicaDocMais.Models.MedicoModel", "medico")
+                        .WithMany()
+                        .HasForeignKey("medicocrm");
+
+                    b.HasOne("ClinicaDocMais.Models.PacienteModel", "paciente")
+                        .WithMany()
+                        .HasForeignKey("pacientecpf");
+
+                    b.Navigation("medico");
+
+                    b.Navigation("paciente");
                 });
 #pragma warning restore 612, 618
         }
